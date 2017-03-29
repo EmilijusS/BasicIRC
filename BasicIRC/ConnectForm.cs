@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace BasicIRC
 {
-    public partial class Form1 : Form
+    public partial class ConnectForm : Form
     {
-        public Form1()
+        public ConnectForm()
         {
             InitializeComponent();
         }
