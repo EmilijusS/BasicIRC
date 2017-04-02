@@ -14,11 +14,10 @@ namespace BasicIRC
         [STAThread]
         static void Main()
         {
-            //Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new ConnectForm());
-
-            new Test().Start();
+            ConnectForm form = new ConnectForm();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(form);
         }
     }
 }

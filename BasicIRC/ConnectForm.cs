@@ -12,9 +12,17 @@ namespace BasicIRC
 {
     public partial class ConnectForm : Form
     {
+        private IRC irc;
+
         public ConnectForm()
         {
             InitializeComponent();
+            irc = new IRC();
+        }
+
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

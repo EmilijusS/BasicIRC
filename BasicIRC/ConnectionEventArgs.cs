@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BasicIRC
 {
-    class ConnectionEventArgs : EventArgs
+    public class ConnectionEventArgs : EventArgs
     {
         public string message;
 

@@ -8,17 +8,25 @@ using System.Threading.Tasks;
 
 namespace BasicIRC
 {
-    class Connection
+    public class Connection
     {
         public event EventHandler<ConnectionEventArgs> dataReceived;
         private TcpClient client;
         private NetworkStream stream;
         private bool isListening;
 
-        public void Connect(string server, int port = 6667)
+        public bool Connect(string server, int port = 6667)
         {
             client = new TcpClient(server, port);
+
+            if(!client.Connected)
+            {
+                return false;
+            }
+
             stream = client.GetStream();
+
+            return true;
         }
 
         public void Send(string message)
