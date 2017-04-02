@@ -10,7 +10,7 @@ namespace BasicIRC
 {
     public class Connection
     {
-        public event EventHandler<ConnectionEventArgs> dataReceived;
+        public event EventHandler<ConnectionEventArgs> DataReceived;
         private TcpClient client;
         private NetworkStream stream;
         private bool isListening;
@@ -45,15 +45,26 @@ namespace BasicIRC
 
             while (isListening)
             {
-                bytes = stream.Read(data, 0, data.Length);
+                try
+                {
+                    bytes = stream.Read(data, 0, data.Length);
+                }
+                catch (Exception e)
+                {
+                    stream.Close();
+                    client.Close();
+                    break;
+                }
 
                 if (bytes > 0)
                 {
-                    dataReceived?.Invoke(this, new ConnectionEventArgs(Encoding.ASCII.GetString(data, 0, bytes)));
+                    DataReceived?.Invoke(this, new ConnectionEventArgs(Encoding.ASCII.GetString(data, 0, bytes)));
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
+
+
         }
 
         public void Close()

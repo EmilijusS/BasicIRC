@@ -10,19 +10,16 @@ using System.Windows.Forms;
 
 namespace BasicIRC
 {
-    public partial class ConnectForm : Form
+    public partial class FormError : Form
     {
-        private IRC irc;
-
-        public ConnectForm()
+        public FormError()
         {
             InitializeComponent();
-            irc = new IRC();
         }
 
-        private void ConnectButton_Click(object sender, EventArgs e)
+        private void ButtonClose_Click(object sender, EventArgs e)
         {
-
+            Close();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace BasicIRC
 {
-    partial class ConnectForm
+    partial class FormConnect
     {
         /// <summary>
         /// Required designer variable.
