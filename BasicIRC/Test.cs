@@ -14,7 +14,7 @@ namespace BasicIRC
         {
             int port = 6667;
             byte[] data;
-            TcpClient client = new TcpClient("port80a.se.quakenet.org", port);
+            TcpClient client = new TcpClient("chat.freenode.net", port);
             NetworkStream stream = client.GetStream();
             string input;
 

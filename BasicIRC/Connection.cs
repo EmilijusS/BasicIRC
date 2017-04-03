@@ -17,12 +17,15 @@ namespace BasicIRC
 
         public bool Connect(string server, int port = 6667)
         {
-            client = new TcpClient(server, port);
-
-            if(!client.Connected)
+            try
+            {
+                client = new TcpClient(server, port);
+            }
+            catch(SocketException e)
             {
                 return false;
             }
+            
 
             stream = client.GetStream();
 
@@ -51,8 +54,11 @@ namespace BasicIRC
                 }
                 catch (Exception e)
                 {
-                    stream.Close();
-                    client.Close();
+                    if(stream != null)
+                        stream.Close();
+
+                    if(client != null)
+                        client.Close();
                     break;
                 }
 

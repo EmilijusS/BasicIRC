@@ -75,6 +75,18 @@
     <Compile Include="FormErrorConnect.Designer.cs">
       <DependentUpon>FormErrorConnect.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormJoinChannel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormJoinChannel.Designer.cs">
+      <DependentUpon>FormJoinChannel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTest.Designer.cs">
+      <DependentUpon>FormTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="IRC.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -90,6 +102,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormErrorConnect.resx">
       <DependentUpon>FormErrorConnect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormJoinChannel.resx">
+      <DependentUpon>FormJoinChannel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
