@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChannelEventArgs.cs" />
     <Compile Include="FormClient.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -87,7 +88,9 @@
     <Compile Include="FormTest.Designer.cs">
       <DependentUpon>FormTest.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewChannelEventArgs.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="PrivateMessageEventArgs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.cs" />

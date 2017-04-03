@@ -13,17 +13,15 @@ namespace BasicIRC
     public partial class FormClient : Form
     {
         private Parser parser;
+        private List<string> users;
 
         public FormClient(Parser parser)
         {
             InitializeComponent();
             this.parser = parser;
-            parser.JoinedChannel += (o, e) => NewChannelTab(e.message);
-        }
-
-        private void FormClient_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            parser.CloseConnection();           
+            parser.JoinedChannel += (o, e) => NewChannelTab(e.channel, e.users);
+            parser.LeftChannel += (o, e) => LeftChannel(e.message);
+            parser.ReceivedMessage += (o, e) => ReceivedMessage(e.channel, e.nick, e.message);
         }
 
         private void ButtonSend_Click(object sender, EventArgs e)
@@ -32,7 +30,7 @@ namespace BasicIRC
             TextBoxMessage.Clear();
         }
 
-        private void NewChannelTab(string channel)
+        private void NewChannelTab(string channel, List<string> users)
         {
             Invoke((MethodInvoker)delegate
             {
@@ -54,6 +52,7 @@ namespace BasicIRC
                 chatTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
                 chatTextBox.Size = new System.Drawing.Size(651, 425);
                 chatTextBox.TabIndex = 0;
+                chatTextBox.Font = new Font("Microsoft Sans Serif", 10.0f);
 
                 TextBox userTextBox = new TextBox();
                 userTextBox.BackColor = System.Drawing.SystemColors.Window;
@@ -69,7 +68,70 @@ namespace BasicIRC
                 tabPage.Controls.Add(userTextBox);
                 tabControl.Controls.Add(tabPage);
                 tabControl.SelectedTab = tabPage;
+
+                this.users = users;
+                UpdateUsers(channel);
             });
+        }
+
+        private void LeftChannel(string channel)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                foreach (TabPage tab in tabControl.TabPages)
+                {
+                    if (tab.Name.Equals(channel))
+                    {
+                        tabControl.Controls.Remove(tab);
+                        break;
+                    }
+                }
+            });
+        }
+
+        private void ReceivedMessage(string channel, string nick, string message)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                foreach (TabPage tab in tabControl.TabPages)
+                {
+                    if (tab.Name.Equals(channel))
+                    {
+                        foreach(Control control in tab.Controls)
+                        {
+                            if(control.Name.Equals(channel + "TextBox"))
+                            {
+                                ((TextBox)control).AppendText('<' + nick + ">: " + message + "\r\n");
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            });
+        }
+
+        private void UpdateUsers(string channel)
+        {
+            foreach (TabPage tab in tabControl.TabPages)
+            {
+                if (tab.Name.Equals(channel))
+                {
+                    foreach (Control control in tab.Controls)
+                    {
+                        if (control.Name.Equals(channel + "UserTextBox"))
+                        {
+                            ((TextBox)control).Clear();
+                            foreach(string user in users)
+                            {
+                                ((TextBox)control).Text += user + "\r\n";
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
         }
     }
 }

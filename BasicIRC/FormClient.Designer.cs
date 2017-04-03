@@ -72,7 +72,6 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "FormClient";
             this.Text = "FormClient";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormClient_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 

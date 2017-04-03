@@ -50,7 +50,7 @@ namespace BasicIRC
             {
                 Hide();
                 var form = new FormClient(parser);
-                form.Closed += (a, b) => Close();
+                form.Closed += (a, b) => { parser.CloseConnection(); Close(); };
                 form.Show();
             });
         }

@@ -11,10 +11,16 @@ namespace BasicIRC
     {
         public event EventHandler<MessageEventArgs> Error;
         public event EventHandler<EventArgs> Connected;
-        public event EventHandler<MessageEventArgs> JoinedChannel;
+        public event EventHandler<NewChannelEventArgs> JoinedChannel;
+        public event EventHandler<ChannelEventArgs> UserJoined;
+        public event EventHandler<MessageEventArgs> LeftChannel;
+        public event EventHandler<ChannelEventArgs> UserLeft;
+        public event EventHandler<PrivateMessageEventArgs> ReceivedMessage;
 
         private Connection connection;
         private string nick;
+        private string lastMessage;
+        private List<string> users;
 
         public Parser()
         {
@@ -47,20 +53,46 @@ namespace BasicIRC
             MsgUser(nick);
             this.nick = nick;
 
-            connection.DataReceived += (o, e) => DataReceived(e);
+            connection.DataReceived += DataReceived;
             new Thread(() => connection.Listen()).Start();
 
             return true;            
         }
 
-        private void DataReceived(MessageEventArgs e)
+        private void DataReceived(object o, MessageEventArgs e)
         {
+            string originNick;
             var commands = e.message.Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+
+            // Servers like to send commands split in separate messages
+            if(lastMessage != null)
+            {
+                commands[0] = lastMessage + commands[0];
+            }
+
+            if(!e.message.EndsWith("\n"))
+            {
+                lastMessage = commands[commands.Length - 1];
+                commands = commands.Take(commands.Length - 1).ToArray();
+            }
+            else
+            {
+                lastMessage = null;
+            }
 
             foreach(var command in commands)
             {
                 Console.WriteLine(command);
-                var message = command.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);              
+                var message = command.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);  
+                
+                if(message[0].Contains('!'))
+                {
+                    originNick = message[0].Substring(1, message[0].IndexOf('!') - 1);
+                }
+                else
+                {
+                    originNick = message[0].Substring(1);
+                }            
 
                 if (message.Length > 1)
                 {
@@ -81,11 +113,19 @@ namespace BasicIRC
 
                     switch(message[1])
                     {
-                        case "331":
-                        case "332":
-                            // Extracts word starting with '#'
-                            JoinedChannel?.Invoke(this, new MessageEventArgs(
-                                command.Substring(command.IndexOf('#') + 1, command.Substring(command.IndexOf('#') + 1).IndexOf(' '))));
+                        case "353":
+                            AddUsers(command);
+                            break;
+                        //End of names list, guaranteed to get after joining channel
+                        case "366":
+                            JoinChannel(command);
+                            break;
+                        case "PART":
+                            if(originNick.Equals(nick))
+                                LeftChannel?.Invoke(this, new MessageEventArgs(command.Substring(command.IndexOf('#') + 1)));
+                            break;
+                        case "PRIVMSG":
+                            ReceivedMessage?.Invoke(this, new PrivateMessageEventArgs(message[2].Substring(1), originNick, command.Substring(1 + command.IndexOf(':', command.IndexOf(':') + 1))));
                             break;
                     }
                 }
@@ -115,13 +155,37 @@ namespace BasicIRC
             else if(channel != null)
             {
                 MsgChat(message, channel);
+                ReceivedMessage?.Invoke(this, new PrivateMessageEventArgs(channel, nick, message));
             }
         }
 
         public void CloseConnection()
         {
             MsgQuit();
+            connection.DataReceived -= DataReceived;
             connection.Close();
+        }
+
+        private void AddUsers(string command)
+        {
+            var names = command.Substring(1 + command.IndexOf(':', command.IndexOf(':') + 1)).Split(' ');
+
+            if (users == null)
+                users = new List<string>;
+
+            users.AddRange(names);
+        }
+
+        private void JoinChannel(string command)
+        {
+            // Extracts first word starting with '#'
+            string channel = command.Substring(command.IndexOf('#') + 1, command.Substring(command.IndexOf('#') + 1).IndexOf(' '));
+
+            users.Sort();
+
+            JoinedChannel?.Invoke(this, new NewChannelEventArgs(channel, users));
+
+            users = null;
         }
 
         private void MsgNick(string nick)

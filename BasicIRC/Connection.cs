@@ -54,7 +54,9 @@ namespace BasicIRC
                 }
                 catch (Exception e)
                 {
-                    if(stream != null)
+                    DataReceived?.Invoke(this, new MessageEventArgs(":localhost 400 :Connection to server lost"));
+
+                    if (stream != null)
                         stream.Close();
 
                     if(client != null)
@@ -67,7 +69,7 @@ namespace BasicIRC
                     DataReceived?.Invoke(this, new MessageEventArgs(Encoding.ASCII.GetString(data, 0, bytes)));
                 }
 
-                Thread.Sleep(100);
+                Thread.Sleep(10);
             }
 
 
