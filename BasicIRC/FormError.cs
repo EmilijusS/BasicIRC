@@ -12,9 +12,10 @@ namespace BasicIRC
 {
     public partial class FormError : Form
     {
-        public FormError()
+        public FormError(string message)
         {
             InitializeComponent();
+            LabelError.Text = message;
         }
 
         private void ButtonClose_Click(object sender, EventArgs e)

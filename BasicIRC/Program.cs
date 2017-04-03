@@ -16,7 +16,7 @@ namespace BasicIRC
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FormClient(new IRC()));
+            Application.Run(new FormConnect());
 
             //new Test().Start();
         }

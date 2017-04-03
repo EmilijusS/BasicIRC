@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace BasicIRC
 {
-    public class ConnectionEventArgs : EventArgs
+    public class MessageEventArgs : EventArgs
     {
         public string message;
 
-        public ConnectionEventArgs(string message)
+        public MessageEventArgs(string message)
         {
             this.message = message;
         }

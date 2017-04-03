@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.tabControl = new System.Windows.Forms.TabControl();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.TextBoxMessage = new System.Windows.Forms.TextBox();
             this.ButtonSend = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -41,14 +41,14 @@
             this.tabControl.Size = new System.Drawing.Size(810, 447);
             this.tabControl.TabIndex = 0;
             // 
-            // textBox1
+            // TextBoxMessage
             // 
-            this.textBox1.Location = new System.Drawing.Point(4, 478);
-            this.textBox1.MaxLength = 200;
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(716, 49);
-            this.textBox1.TabIndex = 1;
+            this.TextBoxMessage.Location = new System.Drawing.Point(4, 478);
+            this.TextBoxMessage.MaxLength = 200;
+            this.TextBoxMessage.Multiline = true;
+            this.TextBoxMessage.Name = "TextBoxMessage";
+            this.TextBoxMessage.Size = new System.Drawing.Size(716, 49);
+            this.TextBoxMessage.TabIndex = 1;
             // 
             // ButtonSend
             // 
@@ -58,6 +58,7 @@
             this.ButtonSend.TabIndex = 2;
             this.ButtonSend.Text = "Send";
             this.ButtonSend.UseVisualStyleBackColor = true;
+            this.ButtonSend.Click += new System.EventHandler(this.ButtonSend_Click);
             // 
             // FormClient
             // 
@@ -66,7 +67,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(810, 539);
             this.Controls.Add(this.ButtonSend);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.TextBoxMessage);
             this.Controls.Add(this.tabControl);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "FormClient";
@@ -80,7 +81,7 @@
         #endregion
 
         private System.Windows.Forms.TabControl tabControl;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox TextBoxMessage;
         private System.Windows.Forms.Button ButtonSend;
     }
 }

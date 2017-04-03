@@ -7,15 +7,16 @@ using System.Threading.Tasks;
 
 namespace BasicIRC
 {
-    public class IRC
+    public class Parser
     {
-        public event EventHandler<EventArgs> Error;
+        public event EventHandler<MessageEventArgs> Error;
         public event EventHandler<EventArgs> Connected;
+        public event EventHandler<MessageEventArgs> JoinedChannel;
 
         private Connection connection;
         private string nick;
 
-        public IRC()
+        public Parser()
         {
             connection = new Connection();
         }
@@ -52,7 +53,7 @@ namespace BasicIRC
             return true;            
         }
 
-        private void DataReceived(ConnectionEventArgs e)
+        private void DataReceived(MessageEventArgs e)
         {
             var commands = e.message.Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
@@ -74,11 +75,47 @@ namespace BasicIRC
                             break;
                         //ERR message
                         case '4':
-                            Error?.Invoke(this, new EventArgs());
+                            Error?.Invoke(this, new MessageEventArgs(command.Substring(command.LastIndexOf(':') + 1)));
+                            break;
+                    }
+
+                    switch(message[1])
+                    {
+                        case "331":
+                        case "332":
+                            // Extracts word starting with '#'
+                            JoinedChannel?.Invoke(this, new MessageEventArgs(
+                                command.Substring(command.LastIndexOf('#') + 1, command.IndexOf(' ') - command.LastIndexOf('#') + 1)));
                             break;
                     }
                 }
             }                    
+        }
+
+        public void SendData(string message, string channel)
+        {
+            if(message.ToLower().StartsWith("/join"))
+            {
+                var split = message.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                for(int i = 1; i < split.Length; ++i)
+                {
+                    MsgJoin(split[i]);
+                }
+            }
+            else if (message.ToLower().StartsWith("/part"))
+            {
+                var split = message.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                for (int i = 1; i < split.Length; ++i)
+                {
+                    MsgPart(split[i]);
+                }
+            }
+            else if(channel != null)
+            {
+                MsgChat(message, channel);
+            }
         }
 
         public void CloseConnection()
@@ -104,7 +141,22 @@ namespace BasicIRC
 
         private void MsgQuit()
         {
-            connection.Send("QUIT");
+            connection.Send("QUIT\r\n");
+        }
+
+        private void MsgJoin(string channel)
+        {
+            connection.Send($"JOIN {channel}\r\n");
+        }
+
+        private void MsgPart(string channel)
+        {
+            connection.Send($"PART {channel}\r\n");
+        }
+
+        private void MsgChat(string message, string channel)
+        {
+            connection.Send($"PRIVMSG #{channel} :{message}\r\n");
         }
     }
 }

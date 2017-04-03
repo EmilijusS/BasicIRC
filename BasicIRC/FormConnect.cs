@@ -12,45 +12,44 @@ namespace BasicIRC
 {
     public partial class FormConnect : Form
     {
-        private IRC irc;
+        private Parser parser;
 
         public FormConnect()
         {
             InitializeComponent();
-            irc = new IRC();
-            irc.Connected += Connected;
-            irc.Error += Error;
+            parser = new Parser();
+            parser.Connected += Connected;
+            parser.Error += Error;
         }
 
         private void ConnectButton_Click(object sender, EventArgs e)
         {
             Enabled = false;
 
-            if(!irc.Start(ServerBox.Text, NickBox.Text))
+            if(!parser.Start(ServerBox.Text, NickBox.Text))
             {
                 new FormErrorConnect().Show();
                 Enabled = true;
             }
         }
 
-        private void Error(object o, EventArgs e)
+        private void Error(object o, MessageEventArgs e)
         {
             Invoke((MethodInvoker)delegate
             {
-                new FormError().Show();
+                new FormError(e.message).Show();
                 Enabled = true;
             });
         }
 
         private void Connected(object o, EventArgs e)
         {
-            irc.Connected -= Connected;
-            irc.Error -= Error;
+            parser.Connected -= Connected;
 
             Invoke((MethodInvoker)delegate
             {
                 Hide();
-                var form = new FormClient(irc);
+                var form = new FormClient(parser);
                 form.Closed += (a, b) => Close();
                 form.Show();
             });
