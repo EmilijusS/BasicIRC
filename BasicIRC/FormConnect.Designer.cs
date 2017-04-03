@@ -78,8 +78,9 @@
             this.ConnectButton.UseVisualStyleBackColor = true;
             this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
             // 
-            // ConnectForm
+            // FormConnect
             // 
+            this.AcceptButton = this.ConnectButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(276, 129);
@@ -88,7 +89,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ServerBox);
             this.Controls.Add(this.NickBox);
-            this.Name = "ConnectForm";
+            this.Name = "FormConnect";
             this.Text = "Connect to server";
             this.ResumeLayout(false);
             this.PerformLayout();

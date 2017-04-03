@@ -85,7 +85,7 @@ namespace BasicIRC
                         case "332":
                             // Extracts word starting with '#'
                             JoinedChannel?.Invoke(this, new MessageEventArgs(
-                                command.Substring(command.LastIndexOf('#') + 1, command.IndexOf(' ') - command.LastIndexOf('#') + 1)));
+                                command.Substring(command.IndexOf('#') + 1, command.Substring(command.IndexOf('#') + 1).IndexOf(' '))));
                             break;
                     }
                 }
