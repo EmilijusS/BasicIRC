@@ -96,19 +96,72 @@ namespace BasicIRC
         {
             Invoke((MethodInvoker)delegate
             {
-                foreach (TabPage tab in tabControl.TabPages)
+                if(!channel.StartsWith("#"))
                 {
-                    if (tab.Name.Equals(channel))
+                    foreach (TabPage tab in tabControl.TabPages)
                     {
-                        foreach(Control control in tab.Controls)
+                        // Client got message
+                        if (tab.Name.Equals(nick))
                         {
-                            if(control.Name.Equals(channel + "TextBox"))
+                            foreach (Control control in tab.Controls)
                             {
-                                ((TextBox)control).AppendText('<' + nick + ">: " + message + "\r\n");
-                                break;
+                                if (control.Name.Equals(nick + "TextBox"))
+                                {
+                                    ((TextBox)control).AppendText('<' + nick + ">: " + message + "\r\n");
+                                }
                             }
+                            return;
                         }
-                        break;
+                        // Client sent message
+                        if (tab.Name.Equals(channel))
+                        {
+                            foreach (Control control in tab.Controls)
+                            {
+                                if (control.Name.Equals(channel + "TextBox"))
+                                {
+                                    ((TextBox)control).AppendText('<' + nick + ">: " + message + "\r\n");
+                                }
+                            }
+                            return;
+                        }
+                    }
+
+                    //If received first private message
+                    var userList = new List<string>();
+
+                    // Client sent message
+                    if (nick == parser.nick)
+                    {
+                        userList.Add(nick);
+                        userList.Add(channel);
+                        NewChannelTab(channel, userList);
+                    }
+                    // Client got message
+                    else
+                    {
+                        userList.Add(nick);
+                        userList.Add(parser.nick);
+                        NewChannelTab(nick, userList);
+                    }
+
+                    ReceivedMessage(channel, nick, message);
+                }
+                else
+                {
+                    foreach (TabPage tab in tabControl.TabPages)
+                    {
+                        if (tab.Name.Equals(channel))
+                        {
+                            foreach (Control control in tab.Controls)
+                            {
+                                if (control.Name.Equals(channel + "TextBox"))
+                                {
+                                    ((TextBox)control).AppendText('<' + nick + ">: " + message + "\r\n");
+                                }
+                            }
+                            return;
+                        }
+
                     }
                 }
             });

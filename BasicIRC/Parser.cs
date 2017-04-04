@@ -18,7 +18,7 @@ namespace BasicIRC
         public event EventHandler<PrivateMessageEventArgs> ReceivedMessage;
 
         private Connection connection;
-        private string nick;
+        public string nick;
         private string lastMessage;
         private List<string> users;
 
@@ -82,7 +82,7 @@ namespace BasicIRC
 
             foreach(var command in commands)
             {
-                //Console.WriteLine(command);
+                Console.WriteLine(command);
                 var message = command.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);  
                 
                 if(message[0].Contains('!'))
@@ -122,16 +122,16 @@ namespace BasicIRC
                             break;
                         case "PART":
                             if(originNick.Equals(nick))
-                                LeftChannel?.Invoke(this, new MessageEventArgs(command.Substring(command.IndexOf('#') + 1)));
+                                LeftChannel?.Invoke(this, new MessageEventArgs(command.Substring(command.IndexOf('#'))));
                             else
                                 UserLeft?.Invoke(this, new ChannelEventArgs(command.Substring(command.IndexOf('#') + 1), originNick));
                             break;
                         case "JOIN":
                             if(originNick != nick)
-                                UserJoined?.Invoke(this, new ChannelEventArgs(command.Substring(command.IndexOf('#') + 1), originNick));
+                                UserJoined?.Invoke(this, new ChannelEventArgs(command.Substring(command.IndexOf('#')), originNick));
                             break;
                         case "PRIVMSG":
-                            ReceivedMessage?.Invoke(this, new PrivateMessageEventArgs(message[2].Substring(1), originNick, command.Substring(1 + command.IndexOf(':', command.IndexOf(':') + 1))));
+                            ReceivedMessage?.Invoke(this, new PrivateMessageEventArgs(message[2], originNick, command.Substring(1 + command.IndexOf(':', command.IndexOf("PRIVMSG")))));
                             break;
                     }
                 }
@@ -140,10 +140,10 @@ namespace BasicIRC
 
         public void SendData(string message, string channel)
         {
-            if(message.ToLower().StartsWith("/join"))
-            {
-                var split = message.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var split = message.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
+            if (message.ToLower().StartsWith("/join"))
+            {               
                 for(int i = 1; i < split.Length; ++i)
                 {
                     MsgJoin(split[i]);
@@ -151,17 +151,29 @@ namespace BasicIRC
             }
             else if (message.ToLower().StartsWith("/part"))
             {
-                var split = message.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
                 for (int i = 1; i < split.Length; ++i)
                 {
                     MsgPart(split[i]);
                 }
             }
-            else if(channel != null)
+            else if(channel != null && channel.StartsWith("#"))
             {
                 MsgChat(message, channel);
                 ReceivedMessage?.Invoke(this, new PrivateMessageEventArgs(channel, nick, message));
+            }
+            else
+            {
+                if(message.StartsWith("/w") && split.Length > 1)
+                {
+                    var sentMessage = message.Substring(message.IndexOf(' ', message.IndexOf(' ') + 1));
+                    MsgChat(sentMessage, split[1]);
+                    ReceivedMessage?.Invoke(this, new PrivateMessageEventArgs(split[1], nick, sentMessage));
+                }
+                else if(channel != null)
+                {
+                    MsgChat(message, channel);
+                    ReceivedMessage?.Invoke(this, new PrivateMessageEventArgs(channel, nick, message));
+                }
             }
         }
 
@@ -185,7 +197,7 @@ namespace BasicIRC
         private void JoinChannel(string command)
         {
             // Extracts first word starting with '#'
-            string channel = command.Substring(command.IndexOf('#') + 1, command.Substring(command.IndexOf('#') + 1).IndexOf(' '));
+            string channel = command.Substring(command.IndexOf('#'), command.Substring(command.IndexOf('#')).IndexOf(' '));
 
             users.Sort();
 
@@ -226,7 +238,7 @@ namespace BasicIRC
 
         private void MsgChat(string message, string channel)
         {
-            connection.Send($"PRIVMSG #{channel} :{message}\r\n");
+            connection.Send($"PRIVMSG {channel} :{message}\r\n");
         }
     }
 }
