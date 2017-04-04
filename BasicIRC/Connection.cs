@@ -78,8 +78,12 @@ namespace BasicIRC
         public void Close()
         {
             isListening = false;
-            stream.Close();
-            client.Close();
+
+            if (stream != null)
+                stream.Close();
+
+            if (client != null)
+                client.Close();
         }
     }
 }

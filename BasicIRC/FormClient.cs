@@ -13,15 +13,18 @@ namespace BasicIRC
     public partial class FormClient : Form
     {
         private Parser parser;
-        private List<string> users;
+        private SortedList<string, List<string>> users;
 
         public FormClient(Parser parser)
         {
             InitializeComponent();
             this.parser = parser;
+            users = new SortedList<string, List<string>>();
             parser.JoinedChannel += (o, e) => NewChannelTab(e.channel, e.users);
             parser.LeftChannel += (o, e) => LeftChannel(e.message);
             parser.ReceivedMessage += (o, e) => ReceivedMessage(e.channel, e.nick, e.message);
+            parser.UserJoined += (o, e) => UserJoined(e.channel, e.nick);
+            parser.UserLeft += (o, e) => UserLeft(e.channel, e.nick);
         }
 
         private void ButtonSend_Click(object sender, EventArgs e)
@@ -69,7 +72,7 @@ namespace BasicIRC
                 tabControl.Controls.Add(tabPage);
                 tabControl.SelectedTab = tabPage;
 
-                this.users = users;
+                this.users.Add(channel, users);
                 UpdateUsers(channel);
             });
         }
@@ -113,6 +116,8 @@ namespace BasicIRC
 
         private void UpdateUsers(string channel)
         {
+            StringBuilder sb = new StringBuilder(); 
+
             foreach (TabPage tab in tabControl.TabPages)
             {
                 if (tab.Name.Equals(channel))
@@ -122,16 +127,38 @@ namespace BasicIRC
                         if (control.Name.Equals(channel + "UserTextBox"))
                         {
                             ((TextBox)control).Clear();
-                            foreach(string user in users)
+                            foreach(string user in users[channel])
                             {
-                                ((TextBox)control).Text += user + "\r\n";
+                                sb.Append(user + "\r\n");
                             }
+
+                            ((TextBox)control).Text = sb.ToString();
                             break;
                         }
                     }
                     break;
                 }
             }
+        }
+
+        private void UserJoined(string channel, string nick)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                var index = users[channel].BinarySearch(nick);
+                if (index < 0) index = ~index;
+                users[channel].Insert(index, nick);
+                UpdateUsers(channel);
+            });            
+        }
+
+        private void UserLeft(string channel, string nick)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                users[channel].RemoveAt(users[channel].BinarySearch(nick));
+                UpdateUsers(channel);
+            });         
         }
     }
 }

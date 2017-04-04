@@ -82,7 +82,7 @@ namespace BasicIRC
 
             foreach(var command in commands)
             {
-                Console.WriteLine(command);
+                //Console.WriteLine(command);
                 var message = command.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);  
                 
                 if(message[0].Contains('!'))
@@ -123,6 +123,12 @@ namespace BasicIRC
                         case "PART":
                             if(originNick.Equals(nick))
                                 LeftChannel?.Invoke(this, new MessageEventArgs(command.Substring(command.IndexOf('#') + 1)));
+                            else
+                                UserLeft?.Invoke(this, new ChannelEventArgs(command.Substring(command.IndexOf('#') + 1), originNick));
+                            break;
+                        case "JOIN":
+                            if(originNick != nick)
+                                UserJoined?.Invoke(this, new ChannelEventArgs(command.Substring(command.IndexOf('#') + 1), originNick));
                             break;
                         case "PRIVMSG":
                             ReceivedMessage?.Invoke(this, new PrivateMessageEventArgs(message[2].Substring(1), originNick, command.Substring(1 + command.IndexOf(':', command.IndexOf(':') + 1))));
@@ -171,7 +177,7 @@ namespace BasicIRC
             var names = command.Substring(1 + command.IndexOf(':', command.IndexOf(':') + 1)).Split(' ');
 
             if (users == null)
-                users = new List<string>;
+                users = new List<string>();
 
             users.AddRange(names);
         }
